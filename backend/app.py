@@ -26,11 +26,30 @@ def check_password(password):
     hashed_password = hash_password(password)
     return check_password_hash(hashed_password, password)
 
-
-@app.route('/')
-def index():
-    return render_template('index.html')
-
+"""
+    route for selecting 3 interests and find a list of relevant clubs
+"""
+@app.route('/home', methods = ['GET'])
+def home():
+    return_json  = {}
+    try:
+        interests_in_json = request.form.get('interests') # 'interest1': "", ....
+        interest1 = interests_in_json['interest1']
+        interest2 = interests_in_json['interest2']
+        interest3 = interests_in_json['interest3']
+        with sql.connect("./instance/database.db") as con:
+           cur = con.cursor()
+           res = cur.execute("SELECT ClubName FROM InterestTags INNER JOIN ClubInterestTags ON TagID INNER JOIN Clubs ON ClubID WHERE TagName = ? OR TagName = ? OR TagName = ?", (interest1, interest2, interest3))
+           [(clubname1, ), (clubname2, ), (clubname3, )] = res.fetchall()
+        return_json["clubname1"] = clubname1
+        return_json["clubname2"] = clubname2
+        return_json["clubname3"] = clubname3
+    except sql.Error as err:
+        print(err)
+    finally:
+       con.close()
+       return return_json
+  
 """
     route for registering new users; responsible for adding user information into the database
 """
