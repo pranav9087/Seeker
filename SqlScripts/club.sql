@@ -3,5 +3,5 @@ CREATE TABLE club (
     club_name varchar(255),
     interest_id int,
 
-    FOREIGN KEY (interest_1) REFERENCES interests(interest_id)
+    FOREIGN KEY (interest_id) REFERENCES interests(interest_id)
 )
