@@ -39,7 +39,7 @@ def home():
         interest3 = interests_in_json['interest3']
         with sql.connect("./instance/database.db") as con:
            cur = con.cursor()
-           res = cur.execute("SELECT ClubName FROM InterestTags INNER JOIN ClubInterestTags ON TagID INNER JOIN Clubs ON ClubID WHERE TagName = ? OR TagName = ? OR TagName = ?", (interest1, interest2, interest3))
+           res = cur.execute("SELECT club_name FROM club INNER JOIN interests ON interest_id WHERE interest_name = ? OR interest_name = ? OR interest_name = ?", (interest1, interest2, interest3))
            [(clubname1, ), (clubname2, ), (clubname3, )] = res.fetchall()
         return_json["clubname1"] = clubname1
         return_json["clubname2"] = clubname2
@@ -71,7 +71,7 @@ def register():
          with sql.connect("./instance/database.db") as con:
             cur = con.cursor()
             msg = "email_address already used, Please try another email"
-            cur.execute("INSERT INTO users (username,email_address,password) VALUES (?,?,?)",(username,email,password) )
+            cur.execute("INSERT INTO users (email,user_name,password) VALUES (?,?,?)",(email,username,password) )
             con.commit()
             msg = "Registration Successful! You can login now"
       except:
