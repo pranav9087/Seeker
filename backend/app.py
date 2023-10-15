@@ -4,13 +4,14 @@ import os
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from email_validator import validate_email, EmailNotValidError
-
+from flask_cors import CORS
 
 
 app = Flask(__name__)
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
 connection = sql.connect('./instance/database.db')
-with open('schema.sql') as f:
+with open('db_testing_schema.sql') as f:
     connection.executescript(f.read()) # execute the SQL scripts
 
 """
