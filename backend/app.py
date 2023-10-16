@@ -10,9 +10,22 @@ from flask_cors import CORS
 app = Flask(__name__)
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
-connection = sql.connect('./instance/database.db')
-with open('db_testing_schema.sql') as f:
-    connection.executescript(f.read()) # execute the SQL scripts
+user_connection = sql.connect('./instance/user.db')
+with open('../SqlScripts/users.sql') as f:
+    user_connection.executescript(f.read()) # execute the SQL scripts
+
+club_connection = sql.connect('./instance/club.db')
+with open('../SqlScripts/club.sql') as f:
+    club_connection.executescript(f.read()) # execute the SQL scripts
+
+interest_connection = sql.connect('./instance/interests.db')
+with open('../SqlScripts/interests.sql') as f:
+    interest_connection.executescript(f.read()) # execute the SQL scripts
+
+user_info_connection = sql.connect('./instance/user_info.db')
+with open('../SqlScripts/user_info.sql') as f:
+    user_info_connection.executescript(f.read()) # execute the SQL scripts
+
 
 """
 a function that hashes the password
@@ -54,35 +67,37 @@ def home():
 """
     route for registering new users; responsible for adding user information into the database
 """
-@app.route('/register', methods = ['POST','GET'])
+@app.route('/register', methods = ['POST'])
 def register():
-    if request.method == 'POST':
-      try:
-         username = request.form['username']
-         email_address = request.form['email_address']
-         user_input_password = request.form['password']
-         password = hash_password(user_input_password)
+    status_code = 200
+    msg = "success"
+    try:
+        username = request.form.get("username")
+        email_address = request.form.get("email_address")
+        user_input_password = request.form.get("password")
+        password = hash_password(user_input_password)
 
-         try:
+        try:
             emailinfo = validate_email(email_address, check_deliverability=True)
             email = emailinfo.normalized
-         except EmailNotValidError as e:
-            msg = "Email is Invalid"
+        except EmailNotValidError as e:
+            status_code = 400 # status code for invalid email
+            msg = "invalid email"
 
-         with sql.connect("./instance/database.db") as con:
+        with sql.connect("./instance/user.db") as con:
             cur = con.cursor()
-            msg = "email_address already used, Please try another email"
             cur.execute("INSERT INTO users (email,user_name,password) VALUES (?,?,?)",(email,username,password) )
             con.commit()
-            msg = "Registration Successful! You can login now"
-      except:
-         con.rollback()
-      
-      finally:
-         return render_template("index.html", msg = msg)
-         con.close()
-    else:
-       return render_template("register.html")
+    except:
+        if status_code != 400: # if status code is not 400 but it gives an exception, then that means it is an error related to DB mostly on insertion
+            con.rollback()
+            status_code = 500
+            msg = "Email already used"
+    
+    finally:
+        con.close()
+        return msg, status_code
+   
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():  
