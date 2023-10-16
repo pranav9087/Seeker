@@ -1,4 +1,4 @@
-CREATE TABLE user_info (
+CREATE TABLE IF NOT EXISTS user_info (
     email varchar(255),
     interest_1 int, 
     interest_2 int,
