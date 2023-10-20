@@ -1,8 +1,3 @@
-INSERT INTO interests (interest_name)
-VALUES ('Consulting'), ('Computer Science'), ('Business'), ('Robotics'), ('Sports'), ('Martial Arts'), 
-('Motorcycle'), ('Gaming'), ('Music'), ('Engineering');
-
-
 INSERT INTO club (club_name, interest_id)
 VALUES ('Illinois Business Consulting', 1), ('Illinois Consulting Group', 1), 
 ('Students Consulting for Non-Profit Organizations', 1), ('Champaign-Urbana Business and Engineering Consulting', 1),
