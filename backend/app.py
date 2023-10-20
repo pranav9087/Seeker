@@ -39,6 +39,30 @@ def check_password(password):
     hashed_password = hash_password(password)
     return check_password_hash(hashed_password, password)
 
+@app.route("/pickInterests", method = ['POST'])
+def pickInterests():
+    status_code = 200
+    msg = "OK"
+    try:
+        interests_in_json = request.form.get("interests") # ideally got 3 from dropdowns
+        interest1 = interests_in_json['interest1']
+        interest2 = interests_in_json['interest2']
+        interest3 = interests_in_json['interest3']
+        with sql.connect('./instance/seeker.db') as con:
+            cur = con.cursor()
+            res = cur.execute("SELECT interest_id FROM interests WHERE interest_name = ? OR interest_name = ? OR interest_name = ?", (interest1, interest2, interest3))
+            [(interest_id1, ), (interest_id2, ), (interest_id3, )] = res.fetchall()
+            res = cur.execute("UPDATE user_interest SET interest_1 = ?, interest_2 = ?, interest_3 = ? WHERE email = ?", (interest_id1, interest_id2, interest_id3, "someemailgetfromloginsession"))
+            con.commit()
+    except:
+        con.rollback()
+        status_code = 500
+        msg = "DB Error"
+
+    finally:
+        con.close()
+        return msg, status_code
+
 """
     route for selecting 3 interests and find a list of relevant clubs
 """
@@ -88,6 +112,8 @@ def register():
         with sql.connect("./instance/seeker.db") as con:
             cur = con.cursor()
             cur.execute("INSERT INTO users (email,user_name,password) VALUES (?,?,?)",(email,username,password) )
+            cur.execute("INSERT INTO user_interest (email) VALUES (?)",(email) )
+
             con.commit()
     except:
         if status_code != 400: # if status code is not 400 but it gives an exception, then that means it is an error related to DB mostly on insertion
