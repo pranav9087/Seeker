@@ -1,26 +1,41 @@
-// components/ClubSeeker.js
 import React, { useState } from 'react';
-
+ 
 const ClubSeeker = () => {
     const [interests, setInterests] = useState({ interest1: "", interest2: "", interest3: "" });
     const [clubs, setClubs] = useState([]);
-
+ 
     const handleDropdownChange = (e, index) => {
         const newInterests = { ...interests };
         newInterests[index] = e.target.value;
         setInterests(newInterests);
     }
-
-    const searchClubs = () => {
-        // Placeholder clubs
-        setClubs(["Illini Blockchain", "Quant", "ACM"]);
+ 
+    const searchClubs = async () => {
+        try {
+            const response = await fetch('http://localhost:5000/home', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(interests)
+            });
+ 
+            if (response.ok) {
+                const data = await response.json();
+                setClubs([data.clubname1, data.clubname2, data.clubname3]);
+            } else {
+                console.error("Error fetching clubs:", response.statusText);
+            }
+        } catch (error) {
+            console.error("Network error:", error);
+        }
     }
-
+ 
     return (
         <div className="min-h-screen bg-violet-100 flex items-center justify-center p-4">
             <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md transition-transform transform hover:scale-102">
                 <h1 className="text-3xl font-bold mb-6 text-gray-800 text-center">Find Clubs by Interests</h1>
-
+ 
                 <div className="space-y-6">
                     {['interest1', 'interest2', 'interest3'].map((interest, idx) => (
                         <div key={idx} className="relative">
@@ -36,13 +51,13 @@ const ClubSeeker = () => {
                             </div>
                         </div>
                     ))}
-
+ 
                     <button onClick={searchClubs}
                             className="btn btn-primary w-full mt-6 text-white bg-blue-500 hover:bg-blue-600 rounded-lg py-2 transition-transform transform hover:scale-105">
                         Search
                     </button>
                 </div>
-
+ 
                 {clubs.length > 0 && (
                     <div className="mt-8 space-y-4">
                         <h2 className="text-2xl font-semibold text-gray-800 mb-4">Matching Clubs:</h2>
@@ -57,5 +72,5 @@ const ClubSeeker = () => {
         </div>
     )
 }
-
+ 
 export default ClubSeeker;
