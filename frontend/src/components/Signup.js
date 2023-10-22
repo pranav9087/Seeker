@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {userAtom} from "../atoms";
+import {useAtom} from 'jotai'
 
 const SignUp = () => {
     const [name, setName] = useState("");
@@ -7,7 +9,7 @@ const SignUp = () => {
     const [password, setPassword] = useState("");
 
     const navigate = useNavigate();
-
+    const [user, setUser] = useAtom(userAtom);
     const handleSubmitClick = () => {
         const requestOptions = {
             method: 'POST',
@@ -28,6 +30,8 @@ const SignUp = () => {
                 }
             })
             .then(data => {
+                setUser(data);
+                localStorage.setItem('user', JSON.stringify(data));
                 navigate('/home');
             })
             .catch(error => {
