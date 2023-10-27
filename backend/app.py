@@ -113,7 +113,6 @@ def register():
             cur = con.cursor()
             cur.execute("INSERT INTO users (email,user_name,password) VALUES (?,?,?)",(email,username,password) )
             cur.execute("INSERT INTO user_interest (email) VALUES (?)",(email) )
-
             con.commit()
     except:
         if status_code != 400: # if status code is not 400 but it gives an exception, then that means it is an error related to DB mostly on insertion
@@ -125,6 +124,21 @@ def register():
         return return_dict, status_code
    
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():  
-    return render_template('login.html', form=form)
+@app.route('/login', methods=['GET'])
+def login():
+    msg = "False"
+    status_code = 200
+    email_address = request.form.get("email_address")
+    user_input_password = request.form.get("password")
+    password = hash_password(user_input_password)
+    try:
+        with sql.connect("./instance/seeker.db") as con:
+            cur = con.cursor()
+            res = cur.execute("SELECT user_name FROM users WHERE email = ? AND password = ?", (email_address, password))
+            if res is not None:
+                msg = "True"
+    except:
+        status_code = 500
+    finally:
+        con.close()
+        return msg, status_code
