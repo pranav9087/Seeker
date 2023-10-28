@@ -39,7 +39,7 @@ def check_password(password):
     hashed_password = hash_password(password)
     return check_password_hash(hashed_password, password)
 
-@app.route("/pickInterests", method = ['POST'])
+@app.route("/pickInterests", methods = ['POST'])
 def pickInterests():
     status_code = 200
     msg = "OK"
@@ -69,24 +69,26 @@ def pickInterests():
 """
     route for selecting 3 interests and find a list of relevant clubs
 """
-@app.route('/home', methods = ['GET'])
+@app.route('/home', methods = ['POST'])
 def home():
     status_code = 200
-    msg = "Success"
+    return_dict={"clubname1": "", "clubname2": "", "clubname3": ""}
     try:
-        interests_in_json = request.form.get('interests') 
+        interests_in_json = request.get_json() 
         interest1 = interests_in_json['interest1']
         interest2 = interests_in_json['interest2']
         interest3 = interests_in_json['interest3']
-        with sql.connect("./instance/seeker.db") as con:
-           cur = con.cursor()
-           res = cur.execute("SELECT club_name FROM club INNER JOIN interests ON interest_id WHERE interest_name = ? OR interest_name = ? OR interest_name = ?", (interest1, interest2, interest3))
-           club_list = [clubs[0] for clubs in res.fetchall()]
+        with sql.connect('./instance/seeker.db') as con:
+            cur = con.cursor()
+            res = cur.execute("SELECT club_name FROM club INNER JOIN interests ON club.interest_id = interests.interest_id WHERE interest_name = ? OR interest_name = ? OR interest_name = ?", (interest1, interest2, interest3))
+            club_list = [clubs[0] for clubs in res.fetchall()]
     except:
         status_code = 500 # db error
     finally:
-       con.close()
-       return {"clubs": club_list}, status_code
+        con.close()
+        for i in range(len(club_list)):
+            return_dict["clubname" + str(i+1)] = club_list[i]
+        return return_dict, status_code
   
 """
     route for registering new users; responsible for adding user information into the database
@@ -111,8 +113,9 @@ def register():
 
         with sql.connect("./instance/seeker.db") as con:
             cur = con.cursor()
-            cur.execute("INSERT INTO users (email,user_name,password) VALUES (?,?,?)",(email,username,password) )
-            cur.execute("INSERT INTO user_interest (email) VALUES (?)",(email) )
+            cur.execute("INSERT INTO users (email,user_name,password) VALUES (?,?,?)",(email,username,password))
+            con.commit()
+            cur.execute("INSERT INTO user_interest (email,interest_1, interest_2, interest_3, club_1, club_2, club_3) VALUES (?,?,?,?,?,?,?)", (email, None, None, None, None, None, None))
             con.commit()
     except:
         if status_code != 400: # if status code is not 400 but it gives an exception, then that means it is an error related to DB mostly on insertion
@@ -126,7 +129,6 @@ def register():
 
 @app.route('/login', methods=['GET'])
 def login():
-    msg = "False"
     status_code = 200
     email_address = request.form.get("email_address")
     user_input_password = request.form.get("password")
@@ -136,9 +138,11 @@ def login():
             cur = con.cursor()
             res = cur.execute("SELECT user_name FROM users WHERE email = ? AND password = ?", (email_address, password))
             if res is not None:
-                msg = "True"
+                username = res.fetchone[0]
+            else:
+                username = ""
     except:
         status_code = 500
     finally:
         con.close()
-        return msg, status_code
+        return {"username": username}, status_code
