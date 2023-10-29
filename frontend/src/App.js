@@ -8,6 +8,8 @@ import SignUp from "./components/Signup";
 import Login from "./components/Login";
 import Navbar from "./components/Navbar";
 import ClubSeeker from "./components/Clubseeker";
+import Pickinterests from "./components/Pickinterests";
+
 const App = () => {
   return (
       <Router>
@@ -16,6 +18,7 @@ const App = () => {
             <Route path="/signup" element={<SignUp />}></Route>
             <Route path="/" element={<Login />}></Route>
             <Route path="/home" element={<ClubSeeker />}></Route>
+            <Route path="/updateprofile" element={<Pickinterests />}></Route>
         </Routes>
       </Router>
   );
