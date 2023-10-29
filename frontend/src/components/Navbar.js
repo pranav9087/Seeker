@@ -10,6 +10,7 @@ const Navbar = () => {
                     <ul className="space-x-4">
                         <li className="inline-block"><Link to="/">Login</Link></li>
                         <li className="inline-block"><Link to="/signup">Sign Up</Link></li>
+                        <li className="inline-block"><Link to="/home">Home</Link></li>
                     </ul>
                 </div>
             </div>
