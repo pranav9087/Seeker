@@ -10,3 +10,20 @@ Users can create an account.
 Users can join clubs directly from the platform. 
 Users can update their profile and interest tags. 
 Users can view upcoming club events or meetings.
+
+=======
+
+### `cd frontend & npm start` 
+
+Runs the frontend
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+
+The page will reload when you make changes.\
+You may also see any lint errors in the console.
+
+
+=======
+### `cd backend & python3 -m flask run`
+
+Runs the backend

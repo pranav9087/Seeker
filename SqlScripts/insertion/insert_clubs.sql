@@ -1,3 +1,5 @@
+DELETE FROM club;
+UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME= 'club';
 INSERT INTO club (club_name, interest_id)
 VALUES ('Illinois Business Consulting', 1), ('Illinois Consulting Group', 1), 
 ('Students Consulting for Non-Profit Organizations', 1), ('Champaign-Urbana Business and Engineering Consulting', 1),
