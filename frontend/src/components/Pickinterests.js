@@ -12,7 +12,7 @@ const Pickinterests = () => {
  
     const searchClubs = async () => {
         try {
-            const response = await fetch('http://localhost:5000/pickinterests', {
+            const response = await fetch('http://localhost:5000/pickInterests', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

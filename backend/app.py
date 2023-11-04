@@ -44,7 +44,7 @@ def pickInterests():
     status_code = 200
     msg = "OK"
     try:
-        interests_in_json = request.form.get("interests") # ideally got 3 from dropdowns
+        interests_in_json = request.get_json() # ideally got 3 from dropdowns
         interest1 = interests_in_json['interest1']
         interest2 = interests_in_json['interest2']
         interest3 = interests_in_json['interest3']
