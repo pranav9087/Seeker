@@ -31,13 +31,41 @@ a function that hashes the password
 """
 def hash_password(password):
     return generate_password_hash(password)
-    
+
 """
-a function that checks if the hashed_password matches with the input password
+    takes structure like this: [(e1, ), (e2, ), (e3, ), ......]
+    returns {e1, e2, e3, ...}
 """
-def check_password(password):
-    hashed_password = hash_password(password)
-    return check_password_hash(hashed_password, password)
+def parse_db_return_tuple(lst_tuples):
+    return_set = {}
+    for i in range(len(lst_tuples)):
+        return_set.add(lst_tuples[i][0])
+    return return_set
+
+
+@app.route("/findSimilarUsers", methods = ['POST'])
+def findSimilarUsers():
+    status_code = 200
+    email_set = {}
+    try:
+        email = request.get_json()['email']
+        with sql.connect('./instance/seeker.db') as con:
+            cur = con.cursor()
+            res = cur.execute("SELECT interest_1, interest_2, interest_3 FROM user_interest WHERE email = ?", (email))
+            interest_id1, interest_id2, interest_id3 = res.fetchone() # could be null in there
+            if interest_id1 != None:
+                res = cur.execute("SELECT email FROM user_interest WHERE interest_1 = ? OR interest_2 = ? OR interest_3 = ?", (interest_id1, interest_id1, interest_id1))
+                email_set.update(parse_db_return_tuple(res.fetchall()))
+            if interest_id2 != None:
+                res = cur.execute("SELECT email FROM user_interest WHERE interest_1 = ? OR interest_2 = ? OR interest_3 = ?", (interest_id2, interest_id2, interest_id2))
+                email_set.update(parse_db_return_tuple(res.fetchall()))
+            if interest_id3 != None:
+                res = cur.execute("SELECT email FROM user_interest WHERE interest_1 = ? OR interest_2 = ? OR interest_3 = ?", (interest_id3, interest_id3, interest_id3))
+                email_set.update(parse_db_return_tuple(res.fetchall()))
+    except:
+        status_code = 500
+    finally:
+        return {"user_list": list(email_set)}, status_code
 
 @app.route("/pickInterests", methods = ['POST'])
 def pickInterests():
@@ -127,22 +155,22 @@ def register():
         return return_dict, status_code
    
 
-@app.route('/login', methods=['GET'])
+@app.route('/login', methods=['POST'])
 def login():
     status_code = 200
     email_address = request.form.get("email_address")
     user_input_password = request.form.get("password")
-    password = hash_password(user_input_password)
+    username = ""
     try:
         with sql.connect("./instance/seeker.db") as con:
             cur = con.cursor()
-            res = cur.execute("SELECT user_name FROM users WHERE email = ? AND password = ?", (email_address, password))
+            res = cur.execute("SELECT user_name, password FROM users WHERE email = ?", (email_address, ))
             if res is not None:
-                username = res.fetchone[0]
-            else:
-                username = ""
+                username, query_pw = res.fetchone()
+                if not check_password_hash(query_pw, user_input_password):
+                    status_code = 401
     except:
         status_code = 500
     finally:
         con.close()
-        return {"username": username}, status_code
+        return {"username": username, "email": email_address}, status_code
