@@ -33,7 +33,7 @@ const SignUp = () => {
                 }
             })
             .then(data => {
-                setUser({"username":"pranav"});
+                setUser(data);
                 localStorage.setItem('user', JSON.stringify(data));
                 navigate('/home');
             })
