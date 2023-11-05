@@ -10,6 +10,8 @@ const Login = () => {
     const navigate = useNavigate();
     const [user, setUser] = useAtom(userAtom);
     const handleSubmitClick = () => {
+        // setUser({"username":"pranav"});
+        // navigate('/home');
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -43,7 +45,7 @@ const Login = () => {
                 <h2 className="text-2xl font-bold mb-4 text-gray-700">Log In</h2>
                 <input type="email" className="input input-bordered w-full mb-2 bg-white bg-opacity-80" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
                 <input type="password" className="input input-bordered w-full mb-2 bg-white bg-opacity-80" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} />
-                <button className="btn btn-purple w-full mt-3" onClick={handleSubmitClick}>Sign Up</button>
+                <button className="btn btn-purple w-full mt-3" onClick={handleSubmitClick}>Log In</button>
             </div>
         </div>
     );

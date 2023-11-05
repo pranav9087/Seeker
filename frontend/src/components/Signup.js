@@ -11,6 +11,8 @@ const SignUp = () => {
     const navigate = useNavigate();
     const [user, setUser] = useAtom(userAtom);
     const handleSubmitClick = () => {
+        // setUser({"username":"pranav"});
+        // navigate('/home');
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -23,6 +25,7 @@ const SignUp = () => {
 
         fetch('http://localhost:5000/register', requestOptions)
             .then(response => {
+
                 if (response.ok) {
                     return response.json();
                 } else {
