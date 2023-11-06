@@ -67,6 +67,42 @@ def findSimilarUsers():
     finally:
         return {"user_list": list(email_set)}, status_code
 
+@app.route('/updateClubs', methods=['POST'])
+def update_clubs():
+    status_code = 200
+    try:
+        clubs_in_json = request.get_json()
+        if 'club1' in clubs_in_json and 'club2' in clubs_in_json and 'club3' in clubs_in_json and 'email' in clubs_in_json:
+            club1 = clubs_in_json['club1']
+            club2 = clubs_in_json['club2']
+            club3 = clubs_in_json['club3']
+            email = clubs_in_json['email']
+
+            with sql.connect('./instance/seeker.db') as con:
+                cur = con.cursor()
+                cur.execute("SELECT email FROM user_interest WHERE email = ?", (email,))
+                user = cur.fetchone()
+                if user:
+                    cur.execute("UPDATE user_interest SET club_1 = ?, club_2 = ?, club_3 = ? WHERE email = ?", (club1, club2, club3, email))
+                    con.commit()
+                else:
+                    status_code = 404  # Not Found
+        else:
+            status_code = 400  # Bad Request
+    except Exception as e:
+        status_code = 500  # Internal Server Error
+    finally:
+        con.close()
+        if status_code == 200:
+            return "Clubs updated successfully", status_code
+        elif status_code == 400:
+            return "Bad Request: Required fields not included in the request data", status_code
+        elif status_code == 404:
+            return "User not found in the database", status_code
+        else:
+            return "An internal server error occurred", status_code
+
+
 @app.route("/pickInterests", methods = ['POST'])
 def pickInterests():
     status_code = 200
