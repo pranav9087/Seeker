@@ -117,7 +117,32 @@ def home():
         for i in range(len(club_list)):
             return_dict["clubname" + str(i+1)] = club_list[i]
         return return_dict, status_code
-  
+    
+"""
+    route for selecting 3 interests and find a list of similar users
+"""
+@app.route('/findSimilarUsers', methods = ['POST'])
+def findSimilarUsersWithInterests():
+    status_code = 200
+    return_dict={"user1": "", "user2": "", "user3": ""}
+    users_list = []
+    try:
+        interests_in_json = request.get_json() 
+        interest1 = interests_in_json['interest1']
+        interest2 = interests_in_json['interest2']
+        interest3 = interests_in_json['interest3']
+        with sql.connect('./instance/seeker.db') as con:
+            cur = con.cursor()
+            res = cur.execute("SELECT users.user_name FROM users INNER JOIN user_interest ON users.email = user_interest.email WHERE user_interest.interest_1 = ? OR user_interest.interest_2 = ? OR user_interest.interest_3 = ?", (interest1, interest2, interest3))
+            users_list = [user[0] for user in res.fetchall()]
+    except:
+        status_code = 500 # db error
+    finally:
+        con.close()
+        for i in range(min(3, len(users_list))):
+            return_dict["user" + str(i+1)] = users_list[i]
+        return return_dict, status_code
+
 """
     route for registering new users; responsible for adding user information into the database
 """
