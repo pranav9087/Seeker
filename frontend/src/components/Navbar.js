@@ -17,8 +17,10 @@ const Navbar = () => {
                         {!user && <li className="inline-block"><Link to="/">Login</Link></li>}
                         {!user && <li className="inline-block"><Link to="/signup">Sign Up</Link></li>}
                         {user && <li className="inline-block"><Link to="/home">Home</Link></li>}
+                        {user && <li className="inline-block"><Link to="/updateProfile">Pick Interests</Link></li>}
+                        {user && <li className="inline-block"><Link to="/setClubs">Pick Clubs</Link></li>}
+                        {user && <li className="inline-block"><Link to="/findUsers">Find Users</Link></li>}
                         {user && <li className="inline-block" onClick={handleClick}><Link to="/">Logout</Link></li>}
-                        {user && <li className="inline-block"><Link to="/updateProfile">Pick</Link></li>}
                     </ul>
                 </div>
             </div>
