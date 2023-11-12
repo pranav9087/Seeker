@@ -157,7 +157,7 @@ def home():
 """
     route for selecting 3 interests and find a list of similar users
 """
-@app.route('/findSimilarUsers', methods = ['POST'])
+@app.route('/findSimilarUsersWithInterests', methods = ['POST'])
 def findSimilarUsersWithInterests():
     status_code = 200
     return_dict={"user1": "", "user2": "", "user3": ""}
