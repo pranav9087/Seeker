@@ -15,6 +15,7 @@ const UserSeeker = () => {
         const currentUser = { email: user.email };
 
         try {
+            console.log(currentUser)
             const response = await fetch('http://localhost:5000/findSimilarUsers', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -81,6 +82,13 @@ const UserSeeker = () => {
                                 <option value="Music">Music</option>
                                 <option value="Sports">Sports</option>
                                 <option value="Tech">Tech</option>
+                                <option value="Consulting">Consulting</option>
+                                <option value="Computer Science">Music</option>
+
+                                <option value="Music">Music</option>
+                                <option value="Music">Music</option>
+                                <option value="Music">Music</option>
+
                             </select>
                             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                                 <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M5.293 9.293L10 14.586 14.707 9.293a.999.999 0 111.414 1.414l-5 5a.997.997 0 01-1.414 0l-5-5a.999.999 0 111.414-1.414z"/></svg>

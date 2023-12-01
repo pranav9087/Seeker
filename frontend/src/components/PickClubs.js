@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {userAtom} from "../atoms";
 import {useAtom} from 'jotai';
 const PickClubs = () => {
-    const [interests, setInterests] = useState({ interest1: "", interest2: "", interest3: "" });
+    const [interests, setInterests] = useState({ club1: "", club2: "", club3: "" });
     const [user, ] = useAtom(userAtom);
     const [success, setSuccess] = useState(false);
     const handleDropdownChange = (e, index) => {

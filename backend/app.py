@@ -51,20 +51,24 @@ def findSimilarUsers():
         email = request.get_json()['email']
         with sql.connect('./instance/seeker.db') as con:
             cur = con.cursor()
-            res = cur.execute("SELECT interest_1, interest_2, interest_3 FROM user_interest WHERE email = ?", (email))
+            res = cur.execute("SELECT interest_1, interest_2, interest_3 FROM user_interest WHERE email = ?", (email, ))
             interest_id1, interest_id2, interest_id3 = res.fetchone() # could be null in there
             if interest_id1 != None:
                 res = cur.execute("SELECT email FROM user_interest WHERE interest_1 = ? OR interest_2 = ? OR interest_3 = ?", (interest_id1, interest_id1, interest_id1))
-                email_set.update(parse_db_return_tuple(res.fetchall()))
+                if res is not None:
+                    email_set.update(parse_db_return_tuple(res.fetchall()))
             if interest_id2 != None:
                 res = cur.execute("SELECT email FROM user_interest WHERE interest_1 = ? OR interest_2 = ? OR interest_3 = ?", (interest_id2, interest_id2, interest_id2))
-                email_set.update(parse_db_return_tuple(res.fetchall()))
+                if res is not None:
+                    email_set.update(parse_db_return_tuple(res.fetchall()))
             if interest_id3 != None:
                 res = cur.execute("SELECT email FROM user_interest WHERE interest_1 = ? OR interest_2 = ? OR interest_3 = ?", (interest_id3, interest_id3, interest_id3))
-                email_set.update(parse_db_return_tuple(res.fetchall()))
+                if res is not None:
+                    email_set.update(parse_db_return_tuple(res.fetchall()))
     except:
         status_code = 500
     finally:
+        con.close()
         return {"user_list": list(email_set)}, status_code
 
 @app.route('/updateClubs', methods=['POST'])
@@ -72,35 +76,23 @@ def update_clubs():
     status_code = 200
     try:
         clubs_in_json = request.get_json()
-        if 'club1' in clubs_in_json and 'club2' in clubs_in_json and 'club3' in clubs_in_json and 'email' in clubs_in_json:
-            club1 = clubs_in_json['club1']
-            club2 = clubs_in_json['club2']
-            club3 = clubs_in_json['club3']
-            email = clubs_in_json['email']
-
-            with sql.connect('./instance/seeker.db') as con:
-                cur = con.cursor()
-                cur.execute("SELECT email FROM user_interest WHERE email = ?", (email,))
-                user = cur.fetchone()
-                if user:
-                    cur.execute("UPDATE user_interest SET club_1 = ?, club_2 = ?, club_3 = ? WHERE email = ?", (club1, club2, club3, email))
-                    con.commit()
-                else:
-                    status_code = 404  # Not Found
-        else:
-            status_code = 400  # Bad Request
+        print(clubs_in_json)
+        club1 = clubs_in_json['club1']
+        club2 = clubs_in_json['club2']
+        club3 = clubs_in_json['club3']
+        email = clubs_in_json['email']
+        with sql.connect('./instance/seeker.db') as con:
+            cur = con.cursor()
+            print("reaches this line")
+            cur.execute("UPDATE user_interest SET club_1 = ?, club_2 = ?, club_3 = ? WHERE email = ?", (club1, club2, club3, email))
+            con.commit()
     except Exception as e:
+        con.rollback()
         status_code = 500  # Internal Server Error
     finally:
         con.close()
-        if status_code == 200:
-            return "Clubs updated successfully", status_code
-        elif status_code == 400:
-            return "Bad Request: Required fields not included in the request data", status_code
-        elif status_code == 404:
-            return "User not found in the database", status_code
-        else:
-            return "An internal server error occurred", status_code
+        return status_code
+       
 
 
 @app.route("/pickInterests", methods = ['POST'])
@@ -160,24 +152,30 @@ def home():
 @app.route('/findSimilarUsersWithInterests', methods = ['POST'])
 def findSimilarUsersWithInterests():
     status_code = 200
-    return_dict={"user1": "", "user2": "", "user3": ""}
-    users_list = []
+    user_email_set = {}
     try:
+        print(request.get_json())
         interests_in_json = request.get_json() 
         interest1 = interests_in_json['interest1']
         interest2 = interests_in_json['interest2']
         interest3 = interests_in_json['interest3']
         with sql.connect('./instance/seeker.db') as con:
             cur = con.cursor()
-            res = cur.execute("SELECT users.user_name FROM users INNER JOIN user_interest ON users.email = user_interest.email WHERE user_interest.interest_1 = ? OR user_interest.interest_2 = ? OR user_interest.interest_3 = ?", (interest1, interest2, interest3))
-            users_list = [user[0] for user in res.fetchall()]
+            interest_id_res = cur.execute("SELECT interest_id FROM interests WHERE interest_name = ? OR interest_name = ? OR interest_name = ?", (interest1, interest2, interest3))
+            interest_id_lst  = [iid[0] for iid in interest_id_res.fetchall()]
+            for i in range(len(interest_id_lst)):
+                cur_iid = interest_id_lst[i]
+                user_res = cur.execute("SELECT email FROM user_interest WHERE interest_1 = ? OR interest_2 = ? OR interest_3 = ?", (cur_iid, cur_iid, cur_iid))
+                if user_res is not None:
+                    lst_of_tuples = user_res.fetchall()
+                    return_set = parse_db_return_tuple(lst_of_tuples)
+                    user_email_set.update(return_set)
+                    
     except:
         status_code = 500 # db error
     finally:
         con.close()
-        for i in range(min(3, len(users_list))):
-            return_dict["user" + str(i+1)] = users_list[i]
-        return return_dict, status_code
+        return {"user_list": list(user_email_set)}, status_code
 
 """
     route for registering new users; responsible for adding user information into the database
