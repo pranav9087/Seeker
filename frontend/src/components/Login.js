@@ -10,8 +10,6 @@ const Login = () => {
     const navigate = useNavigate();
     const [, setUser] = useAtom(userAtom);
     const handleSubmitClick = () => {
-        setUser({"username":"pranav", email:"9087pranav@gmail.com"});
-        navigate('/home');
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
