@@ -6,10 +6,11 @@ import {useAtom} from 'jotai';
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [failure, setFailure] = useState(false);
 
     const navigate = useNavigate();
     const [, setUser] = useAtom(userAtom);
-    const handleSubmitClick = () => {
+    const handleSubmitClick = async () => {
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -18,23 +19,21 @@ const Login = () => {
                 'password': password
             })
         };
-
-        fetch('http://localhost:5000/login', requestOptions)
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } else {
-                    throw new Error('Failed to sign up');
-                }
-            })
-            .then(data => {
+        try {
+            const response = await fetch('http://localhost:5000/login', requestOptions);
+            if (response.ok) {
+                const data = response.json();
                 setUser(data);
                 localStorage.setItem('user', JSON.stringify(data));
                 navigate('/home');
-            })
-            .catch(error => {
-                console.error("There was an error during login:", error);
-            });
+            } else {
+                setFailure(true);
+                console.error("There was an error during login:");
+            }
+        } catch (error) {
+            setFailure(true);
+            console.error("There was an error during login:", error);
+        }
     }
 
     return (
@@ -44,6 +43,7 @@ const Login = () => {
                 <input type="email" className="input input-bordered w-full mb-2 bg-white bg-opacity-80" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
                 <input type="password" className="input input-bordered w-full mb-2 bg-white bg-opacity-80" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} />
                 <button className="btn btn-purple w-full mt-3" onClick={handleSubmitClick}>Log In</button>
+                {failure && <p className="text-red-500 text-sm mt-2">Incorrect email or password.</p>}
             </div>
         </div>
     );

@@ -7,12 +7,11 @@ const SignUp = () => {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [failure, setFailure] = useState(false);
 
     const navigate = useNavigate();
-    const [user, setUser] = useAtom(userAtom);
-    const handleSubmitClick = () => {
-        // setUser({"username":"pranav"});
-        // navigate('/home');
+    const [, setUser] = useAtom(userAtom);
+    const handleSubmitClick = async () => {
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -22,24 +21,21 @@ const SignUp = () => {
                 'password': password
             })
         };
-
-        fetch('http://localhost:5000/register', requestOptions)
-            .then(response => {
-
-                if (response.ok) {
-                    return response.json();
-                } else {
-                    throw new Error('Failed to sign up');
-                }
-            })
-            .then(data => {
+        try {
+            const response = await fetch('http://localhost:5000/register', requestOptions);
+            if (response.ok) {
+                const data = response.json();
                 setUser(data);
                 localStorage.setItem('user', JSON.stringify(data));
                 navigate('/home');
-            })
-            .catch(error => {
-                console.error("There was an error during the sign-up:", error);
-            });
+            } else {
+                setFailure(true);
+                console.error("There was an error during the sign-up:");
+            }
+        } catch (error) {
+            setFailure(true);
+            console.error("There was an error during the sign-up:", error);
+        }
     }
 
     return (
@@ -50,6 +46,7 @@ const SignUp = () => {
                 <input type="email" className="input input-bordered w-full mb-2 bg-white bg-opacity-80" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
                 <input type="password" className="input input-bordered w-full mb-2 bg-white bg-opacity-80" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} />
                 <button className="btn btn-purple w-full mt-3" onClick={handleSubmitClick}>Sign Up</button>
+                {failure && <p className="text-red-500 text-sm mt-2">Error while registering.</p>}
             </div>
         </div>
     );
