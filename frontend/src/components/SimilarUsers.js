@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState} from 'react';
 import {userAtom} from "../atoms";
 import {useAtom} from 'jotai';
 const UserSeeker = () => {
@@ -6,12 +6,12 @@ const UserSeeker = () => {
     const [users, setUsers] = useState([]);
     const [similarInterestUsers, setSimilarInterestUsers] = useState([]);
     const [user, ] = useAtom(userAtom);
+    const [isFetched, setIsFetched] = useState(false);
+    const [success, setSuccess] = useState(false);
 
-    useEffect(() => {
-        fetchSimilarInterestUsers();
-    }, []);
 
     const fetchSimilarInterestUsers = async () => {
+        setIsFetched(true);
         const currentUser = { email: user.email };
 
         try {
@@ -41,6 +41,7 @@ const UserSeeker = () => {
     };
 
     const searchUsers = async () => {
+        setSuccess(true);
         try {
             const response = await fetch('http://localhost:5000/findSimilarUsersWithInterests', {
                 method: 'POST',
@@ -64,16 +65,23 @@ const UserSeeker = () => {
     return (
         <div className="min-h-screen bg-violet-100 flex items-center justify-center p-4">
             <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md transition-transform transform hover:scale-102">
-                <h1 className="text-3xl font-bold mb-6 text-gray-800 text-center">Find Users by Interests</h1>
                 <div className="mb-6">
-                    <h2 className="text-2xl font-semibold text-gray-800 mb-4">Users with Similar Interests:</h2>
-                    <ul>
-                        {similarInterestUsers.length > 0 
-                            && similarInterestUsers.map((user, index) => (
-                            <li key={index} className="p-2 bg-blue-100 rounded-lg transition-shadow hover:shadow-md text-blue-800 font-medium mb-4">{user.email}</li>
-                        ))}
-                    </ul>
+                    <button onClick={fetchSimilarInterestUsers}
+                            className="btn btn-primary w-full mt-6 text-white bg-blue-500 hover:bg-blue-600 rounded-lg py-2">
+                        Find Users with Similar Interests
+                    </button>
                 </div>
+                {isFetched &&
+                    (<div className="mb-6">
+                            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Users with Similar Interests:</h2>
+                            <ul>
+                                {similarInterestUsers.length > 0
+                                    ? (similarInterestUsers.map((user, index) => (
+                                        <li key={index} className="p-2 bg-blue-100 rounded-lg transition-shadow hover:shadow-md text-blue-800 font-medium mb-4">{user.email}</li>
+                                    ))) :((<div className="text-gray-600">No users found</div>))}
+                            </ul>
+                        </div>
+                    )}
 
                 <div className="space-y-6">
                     {['interest1', 'interest2', 'interest3'].map((interest, idx) => (
@@ -91,7 +99,6 @@ const UserSeeker = () => {
                                 <option value="Gaming">Gaming</option>
                                 <option value="Music">Music</option>
                                 <option value="Engineering">Engineering</option>
-
                             </select>
                             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                                 <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M5.293 9.293L10 14.586 14.707 9.293a.999.999 0 111.414 1.414l-5 5a.997.997 0 01-1.414 0l-5-5a.999.999 0 111.414-1.414z"/></svg>
@@ -104,8 +111,7 @@ const UserSeeker = () => {
                         Search
                     </button>
                 </div>
-
-                {users.length > 0 && (
+                {success &&  (users.length > 0 ? (
                     <div className="mt-8 space-y-4">
                         <h2 className="text-2xl font-semibold text-gray-800 mb-4">Matching Users:</h2>
                         <ul>
@@ -114,7 +120,7 @@ const UserSeeker = () => {
                             ))}
                         </ul>
                     </div>
-                )}
+                ) : (<div className="text-gray-600">No users found</div>))}
             </div>
         </div>
     );
