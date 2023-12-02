@@ -81,15 +81,16 @@ const UserSeeker = () => {
                             <select onChange={(e) => handleDropdownChange(e, interest)}
                                     className="block appearance-none w-full bg-white border border-gray-300 hover:border-gray-400 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline-blue focus:border-blue-300">
                                 <option value="">Select Interest</option>
-                                <option value="Music">Music</option>
-                                <option value="Sports">Sports</option>
-                                <option value="Tech">Tech</option>
                                 <option value="Consulting">Consulting</option>
-                                <option value="Computer Science">Music</option>
-
+                                <option value="Computer Science">Computer Science</option>
+                                <option value="Business">Business</option>
+                                <option value="Robotics">Robotics</option>
+                                <option value="Sports">Sports</option>
+                                <option value="Martial Arts">Martial Arts</option>
+                                <option value="Motorcycle">Motorcycle</option>
+                                <option value="Gaming">Gaming</option>
                                 <option value="Music">Music</option>
-                                <option value="Music">Music</option>
-                                <option value="Music">Music</option>
+                                <option value="Engineering">Engineering</option>
 
                             </select>
                             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
