@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
+import {userAtom} from "../atoms";
+import {useAtom} from 'jotai';
  
 const Pickinterests = () => {
     const [interests, setInterests] = useState({ interest1: "", interest2: "", interest3: "" });
     const [clubs, setClubs] = useState([]);
+    const [user, ] = useAtom(userAtom);
+
  
     const handleDropdownChange = (e, index) => {
         const newInterests = { ...interests };
@@ -12,12 +16,14 @@ const Pickinterests = () => {
  
     const searchClubs = async () => {
         try {
+            const currentUser = { email: user.email };
+
             const response = await fetch('http://localhost:5000/pickInterests', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(interests)
+                body: JSON.stringify({interests, currentUser})
             });
  
             if (response.ok) {

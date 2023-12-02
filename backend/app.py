@@ -53,6 +53,7 @@ def findSimilarUsers():
             cur = con.cursor()
             res = cur.execute("SELECT interest_1, interest_2, interest_3 FROM user_interest WHERE email = ?", (email, ))
             interest_id1, interest_id2, interest_id3 = res.fetchone() # could be null in there
+            print(interest_id1, interest_id2, interest_id3)
             if interest_id1 != None:
                 res = cur.execute("SELECT email FROM user_interest WHERE interest_1 = ? OR interest_2 = ? OR interest_3 = ?", (interest_id1, interest_id1, interest_id1))
                 if res is not None:
@@ -69,18 +70,19 @@ def findSimilarUsers():
         status_code = 500
     finally:
         con.close()
+        print(email_set)
         return {"user_list": list(email_set)}, status_code
 
 @app.route('/updateClubs', methods=['POST'])
 def update_clubs():
     status_code = 200
     try:
-        clubs_in_json = request.get_json()
+        email_in_json = request.get_json()['email']
         print(clubs_in_json)
         club1 = clubs_in_json['club1']
         club2 = clubs_in_json['club2']
         club3 = clubs_in_json['club3']
-        email = clubs_in_json['email']
+        email = email_in_json['email']
         with sql.connect('./instance/seeker.db') as con:
             cur = con.cursor()
             print("reaches this line")
@@ -100,11 +102,12 @@ def pickInterests():
     status_code = 200
     msg = "OK"
     try:
-        interests_in_json = request.get_json() # ideally got 3 from dropdowns
+        interests_in_json = request.get_json()['interests'] # ideally got 3 from dropdowns
+        email_in_json = request.get_json()['currentUser']
         interest1 = interests_in_json['interest1']
         interest2 = interests_in_json['interest2']
         interest3 = interests_in_json['interest3']
-        email = interests_in_json['email']
+        email = email_in_json['email']
         with sql.connect('./instance/seeker.db') as con:
             cur = con.cursor()
             res = cur.execute("SELECT interest_id FROM interests WHERE interest_name = ? OR interest_name = ? OR interest_name = ?", (interest1, interest2, interest3))
@@ -154,7 +157,6 @@ def findSimilarUsersWithInterests():
     status_code = 200
     user_email_set = {}
     try:
-        print(request.get_json())
         interests_in_json = request.get_json() 
         interest1 = interests_in_json['interest1']
         interest2 = interests_in_json['interest2']
