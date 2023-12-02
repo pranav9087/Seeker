@@ -36,56 +36,54 @@ def hash_password(password):
     takes structure like this: [(e1, ), (e2, ), (e3, ), ......]
     returns {e1, e2, e3, ...}
 """
-def parse_db_return_tuple(lst_tuples):
-    return_set = {}
+def parse_db_return_tuple(lst_tuples, currentUserEmail):
+    return_set = set()
     for i in range(len(lst_tuples)):
-        return_set.add(lst_tuples[i][0])
+        if lst_tuples[i][0] != currentUserEmail:
+            return_set.add(lst_tuples[i][0])
     return return_set
 
 
 @app.route("/findSimilarUsers", methods = ['POST'])
 def findSimilarUsers():
     status_code = 200
-    email_set = {}
+    email_set = set()
     try:
         email = request.get_json()['email']
         with sql.connect('./instance/seeker.db') as con:
             cur = con.cursor()
             res = cur.execute("SELECT interest_1, interest_2, interest_3 FROM user_interest WHERE email = ?", (email, ))
             interest_id1, interest_id2, interest_id3 = res.fetchone() # could be null in there
-            print(interest_id1, interest_id2, interest_id3)
             if interest_id1 != None:
                 res = cur.execute("SELECT email FROM user_interest WHERE interest_1 = ? OR interest_2 = ? OR interest_3 = ?", (interest_id1, interest_id1, interest_id1))
                 if res is not None:
-                    email_set.update(parse_db_return_tuple(res.fetchall()))
+                    email_set.update(parse_db_return_tuple(res.fetchall(), email))
             if interest_id2 != None:
                 res = cur.execute("SELECT email FROM user_interest WHERE interest_1 = ? OR interest_2 = ? OR interest_3 = ?", (interest_id2, interest_id2, interest_id2))
                 if res is not None:
-                    email_set.update(parse_db_return_tuple(res.fetchall()))
+                    email_set.update(parse_db_return_tuple(res.fetchall(), email))
             if interest_id3 != None:
                 res = cur.execute("SELECT email FROM user_interest WHERE interest_1 = ? OR interest_2 = ? OR interest_3 = ?", (interest_id3, interest_id3, interest_id3))
                 if res is not None:
-                    email_set.update(parse_db_return_tuple(res.fetchall()))
+                    email_set.update(parse_db_return_tuple(res.fetchall(), email))
+
     except:
         status_code = 500
     finally:
         con.close()
-        print(email_set)
         return {"user_list": list(email_set)}, status_code
 
 @app.route('/updateClubs', methods=['POST'])
 def update_clubs():
     status_code = 200
     try:
-        email_in_json = request.get_json()['email']
-        print(clubs_in_json)
+        email = request.get_json()['email']
+        clubs_in_json = request.get_json()['clubs']
         club1 = clubs_in_json['club1']
         club2 = clubs_in_json['club2']
         club3 = clubs_in_json['club3']
-        email = email_in_json['email']
         with sql.connect('./instance/seeker.db') as con:
             cur = con.cursor()
-            print("reaches this line")
             cur.execute("UPDATE user_interest SET club_1 = ?, club_2 = ?, club_3 = ? WHERE email = ?", (club1, club2, club3, email))
             con.commit()
     except Exception as e:
@@ -93,7 +91,7 @@ def update_clubs():
         status_code = 500  # Internal Server Error
     finally:
         con.close()
-        return status_code
+        return "updated successful", status_code
        
 
 
@@ -155,12 +153,13 @@ def home():
 @app.route('/findSimilarUsersWithInterests', methods = ['POST'])
 def findSimilarUsersWithInterests():
     status_code = 200
-    user_email_set = {}
+    user_email_set = set()
     try:
-        interests_in_json = request.get_json() 
+        interests_in_json = request.get_json()['interests']
         interest1 = interests_in_json['interest1']
         interest2 = interests_in_json['interest2']
         interest3 = interests_in_json['interest3']
+        email = request.get_json()['currentUser']['email']
         with sql.connect('./instance/seeker.db') as con:
             cur = con.cursor()
             interest_id_res = cur.execute("SELECT interest_id FROM interests WHERE interest_name = ? OR interest_name = ? OR interest_name = ?", (interest1, interest2, interest3))
@@ -170,7 +169,7 @@ def findSimilarUsersWithInterests():
                 user_res = cur.execute("SELECT email FROM user_interest WHERE interest_1 = ? OR interest_2 = ? OR interest_3 = ?", (cur_iid, cur_iid, cur_iid))
                 if user_res is not None:
                     lst_of_tuples = user_res.fetchall()
-                    return_set = parse_db_return_tuple(lst_of_tuples)
+                    return_set = parse_db_return_tuple(lst_of_tuples, email)
                     user_email_set.update(return_set)
                     
     except:
@@ -192,7 +191,7 @@ def register():
         user_input_password = request.form.get("password")
         password = hash_password(user_input_password)
         return_dict["username"] = username
-        return_dict["email address"] = email_address
+        return_dict["email"] = email_address
         try:
             emailinfo = validate_email(email_address, check_deliverability=True)
             email = emailinfo.normalized

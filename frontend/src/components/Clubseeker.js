@@ -22,6 +22,7 @@ const ClubSeeker = () => {
  
             if (response.ok) {
                 const data = await response.json();
+                console.log(data)
                 setClubs([data.clubname1, data.clubname2, data.clubname3]);
             } else {
                 console.error("Error fetching clubs:", response.statusText);

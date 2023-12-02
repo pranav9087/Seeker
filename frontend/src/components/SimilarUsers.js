@@ -15,7 +15,7 @@ const UserSeeker = () => {
         const currentUser = { email: user.email };
 
         try {
-            console.log(currentUser)
+           
             const response = await fetch('http://localhost:5000/findSimilarUsers', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -24,8 +24,7 @@ const UserSeeker = () => {
 
             if (response.ok) {
                 const data = await response.json();
-                console.log(data)
-                setSimilarInterestUsers(data);
+                setSimilarInterestUsers(data["user_list"]);
             } else {
                 console.error("Error fetching users with similar interests:", response.statusText);
             }
@@ -42,18 +41,20 @@ const UserSeeker = () => {
 
     const searchUsers = async () => {
         setSuccess(true);
+        const currentUser = { email: user.email };
+
         try {
             const response = await fetch('http://localhost:5000/findSimilarUsersWithInterests', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(interests)
+                body: JSON.stringify({interests, currentUser})
             });
 
             if (response.ok) {
                 const data = await response.json();
-                setUsers(data);
+                setUsers(data['user_list']);
             } else {
                 console.error("Error fetching users:", response.statusText);
             }
@@ -77,7 +78,7 @@ const UserSeeker = () => {
                             <ul>
                                 {similarInterestUsers.length > 0
                                     ? (similarInterestUsers.map((user, index) => (
-                                        <li key={index} className="p-2 bg-blue-100 rounded-lg transition-shadow hover:shadow-md text-blue-800 font-medium mb-4">{user.email}</li>
+                                        <li key={index} className="p-2 bg-blue-100 rounded-lg transition-shadow hover:shadow-md text-blue-800 font-medium mb-4">{user}</li>
                                     ))) :((<div className="text-gray-600">No users found</div>))}
                             </ul>
                         </div>
@@ -116,7 +117,7 @@ const UserSeeker = () => {
                         <h2 className="text-2xl font-semibold text-gray-800 mb-4">Matching Users:</h2>
                         <ul>
                             {users.map((user, index) => (
-                                <li key={index} className="p-2 bg-blue-100 rounded-lg transition-shadow hover:shadow-md text-blue-800 font-medium mb-4">{user.name}</li>
+                                <li key={index} className="p-2 bg-blue-100 rounded-lg transition-shadow hover:shadow-md text-blue-800 font-medium mb-4">{user}</li>
                             ))}
                         </ul>
                     </div>
