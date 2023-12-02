@@ -1,0 +1,4 @@
+email_validator==2.0.0.post2
+Flask==3.0.0
+Flask_Cors==4.0.0
+Werkzeug==3.0.1
