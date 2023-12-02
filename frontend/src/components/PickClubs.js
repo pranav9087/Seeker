@@ -18,7 +18,7 @@ const PickClubs = () => {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({email: user.email, interests: interests})
+                body: JSON.stringify({email: user.email, clubs: interests})
             });
 
             if (response.ok) {
@@ -37,7 +37,7 @@ const PickClubs = () => {
                 <h1 className="text-3xl font-bold mb-6 text-gray-800 text-center">Pick Clubs</h1>
 
                 <div className="space-y-6">
-                    {['interest1', 'interest2', 'interest3'].map((interest, idx) => (
+                    {['club1', 'club2', 'club3'].map((interest, idx) => (
                         <div key={idx} className="relative">
                             <select onChange={(e) => handleDropdownChange(e, interest)}
                                     className="block appearance-none w-full bg-white border border-gray-300 hover:border-gray-400 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline-blue focus:border-blue-300">

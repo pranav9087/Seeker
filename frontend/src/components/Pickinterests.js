@@ -4,8 +4,9 @@ import {useAtom} from 'jotai';
  
 const Pickinterests = () => {
     const [interests, setInterests] = useState({ interest1: "", interest2: "", interest3: "" });
-    const [clubs, setClubs] = useState([]);
     const [user, ] = useAtom(userAtom);
+    const [success, setSuccess] = useState(false);
+
 
  
     const handleDropdownChange = (e, index) => {
@@ -27,8 +28,8 @@ const Pickinterests = () => {
             });
  
             if (response.ok) {
+                setSuccess(true);
                 const data = await response.json();
-                setClubs([data.clubname1, data.clubname2, data.clubname3]);
             } else {
                 console.error("Error fetching clubs:", response.statusText);
             }
@@ -69,18 +70,8 @@ const Pickinterests = () => {
                             className="btn btn-primary w-full mt-6 text-white bg-blue-500 hover:bg-blue-600 rounded-lg py-2 transition-transform transform hover:scale-105">
                         Update Profile
                     </button>
+                    {success && <p className="text-green-500">Successfully updated profile!</p>}
                 </div>
- 
-                {clubs.length > 0 && (
-                    <div className="mt-8 space-y-4">
-                        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Matching Clubs:</h2>
-                        <ul>
-                            {clubs.map((club, index) => (
-                                <li key={index} className="p-2 bg-blue-100 rounded-lg transition-shadow hover:shadow-md text-blue-800 font-medium mb-4">{club}</li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
             </div>
         </div>
     )
