@@ -24,6 +24,7 @@ const UserSeeker = () => {
 
             if (response.ok) {
                 const data = await response.json();
+                console.log(data)
                 setSimilarInterestUsers(data);
             } else {
                 console.error("Error fetching users with similar interests:", response.statusText);
@@ -67,8 +68,9 @@ const UserSeeker = () => {
                 <div className="mb-6">
                     <h2 className="text-2xl font-semibold text-gray-800 mb-4">Users with Similar Interests:</h2>
                     <ul>
-                        {similarInterestUsers.map((user, index) => (
-                            <li key={index} className="p-2 bg-blue-100 rounded-lg transition-shadow hover:shadow-md text-blue-800 font-medium mb-4">{user.username}</li>
+                        {similarInterestUsers.length > 0 
+                            && similarInterestUsers.map((user, index) => (
+                            <li key={index} className="p-2 bg-blue-100 rounded-lg transition-shadow hover:shadow-md text-blue-800 font-medium mb-4">{user.email}</li>
                         ))}
                     </ul>
                 </div>
