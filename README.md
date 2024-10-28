@@ -21,7 +21,7 @@ For more details, view the full project proposal [here](https://docs.google.com/
 # Developers
 
 - **Peize Li**: Managing database and Worked on backend API creation, interaction and a few SQL scripts
-- **Pranav Penmatcha**: Worked on most frontend web pages
+- **Pranav Penmatcha**: Worked on frontend web pages and helped Peize with backend API creation
 - **Pranash Krishnan**: Assisted on both backend API and frontend and mostly Worked on writing SQL scripts and populating the database 
 - **Naman Goyal**: Assisted on backend and mostly Worked on writing SQL scripts and populating the database
 
